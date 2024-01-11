@@ -136,3 +136,4 @@ if __name__ == "__main__":
     warrior_2 = Warrior(name="Vlad", health=7000, weapon=weapon_2, armor=armor_2)
 
     fight(warrior_1, warrior_2)
+    print('Изменение, просто для того что бы посмотреть')
