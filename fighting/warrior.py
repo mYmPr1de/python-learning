@@ -54,7 +54,7 @@ class Weapon:
 
     def calculate_damage(self) -> int | float:
         actual_damage = random.randint(self.min_damage, self.max_damage)
-        if self._is_crit_processed():
+        if self._is_crit_triggered():
             actual_damage *= (self.crit_strange / 100) + 1
             print(f"Crit attack {actual_damage} damage")
         else:
