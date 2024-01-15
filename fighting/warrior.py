@@ -70,7 +70,7 @@ class Warrior:
         self.armor = armor
         self.is_alive: bool = True
 
-    def get_damage(self, damage: int):
+    def take_damage(self, damage: int):
         remaining_armor = self.armor.absorb(damage)
         if remaining_armor <= 0:
             self.health -= abs(remaining_armor)
