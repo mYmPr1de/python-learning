@@ -81,9 +81,6 @@ class Warrior:
                 f"The health after damage is: {self.health} and armor is: {self.armor.armor}"
             )
 
-    def damage_of_health(self, damage: int) -> bool:
-        return damage <= self.health
-
     def attack(self, opponent: Self):
         damage = self.weapon.calculate_damage()
         opponent.get_damage(damage)
