@@ -49,7 +49,7 @@ class Weapon:
         self.crit_chance = crit_chance
         self.crit_strange = crit_strange
 
-    def _is_crit_processed(self) -> int:
+    def _is_crit_triggered(self) -> int:
         return random.randint(1, 100) <= self.crit_chance
 
     def calculate_damage(self) -> int | float:
