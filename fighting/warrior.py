@@ -5,7 +5,7 @@ from typing import Self
 class Armor:
     def __init__(self, defence: int, class_armor: int):
         self.class_armor = class_armor
-        self.armor: int | float = defence * self.multiplicity_check()
+        self.armor = defence * self.multiplicity_check()
 
     def multiplicity_check(self) -> float:
         return {
