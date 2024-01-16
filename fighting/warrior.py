@@ -19,19 +19,20 @@ class Armor:
 
     def absorb(self, damage: int) -> int | float:
         if self._can_absorb_all_damage(damage):
-            self.armor -= damage
+            absorbed_damage = damage
+            self.armor -= absorbed_damage
             print(
-                f"The armor absorbed the damage successfully. Remaining armor is: {self.armor}"
+                f"The armor absorbed {absorbed_damage} damage successfully. Remaining armor is: {self.armor}"
             )
-            return self.armor
         else:
-            remaining_damage = self.armor - damage
+            absorbed_damage = self.armor
             self.armor = 0
+            remaining_damage = damage - absorbed_damage
             print(
-                f"The armor don't absorb all the damage and part of the damage transfers to health. "
-                f"Remaining damage is: {abs(remaining_damage)}"
+                f"The armor don't absorb all the damage, and {absorbed_damage} damage was absorbed. "
+                f"Remaining damage transferred to health is: {remaining_damage}"
             )
-            return remaining_damage
+        return absorbed_damage
 
 
 class Weapon:
@@ -71,19 +72,19 @@ class Warrior:
         self.is_alive: bool = True
 
     def take_damage(self, damage: int):
-        remaining_armor = self.armor.absorb(damage)
-        if remaining_armor <= 0:
-            self.health -= abs(remaining_armor)
-            if self.health <= 0:
-                self.health = 0
-                self.is_alive = False
+        absorbed_damage = self.armor.absorb(damage)
+        remaining_damage = damage - absorbed_damage
+        self.health -= remaining_damage
+        if self.health <= 0:
+            self.health = 0
+            self.is_alive = False
             print(
                 f"The health after damage is: {self.health} and armor is: {self.armor.armor}"
             )
 
     def attack(self, opponent: Self):
         damage = self.weapon.calculate_damage()
-        opponent.get_damage(damage)
+        opponent.take_damage(damage)
 
 
 def fight(warrior1: "Warrior", warrior2: "Warrior"):
@@ -125,11 +126,15 @@ def fight(warrior1: "Warrior", warrior2: "Warrior"):
 
 if __name__ == "__main__":
     armor_1 = Armor(defence=15000, class_armor=2)
-    weapon_1 = Weapon(name="Hammer", min_damage=200, max_damage=5000, crit_chance=80, crit_strange=95)
+    weapon_1 = Weapon(
+        name="Hammer", min_damage=200, max_damage=5000, crit_chance=80, crit_strange=95
+    )
     warrior_1 = Warrior(name="Aleksandr", health=6000, weapon=weapon_1, armor=armor_1)
 
     armor_2 = Armor(defence=16000, class_armor=3)
-    weapon_2 = Weapon(name="Knife", min_damage=500, max_damage=5000, crit_chance=90, crit_strange=85)
+    weapon_2 = Weapon(
+        name="Knife", min_damage=500, max_damage=5000, crit_chance=90, crit_strange=85
+    )
     warrior_2 = Warrior(name="Vlad", health=7000, weapon=weapon_2, armor=armor_2)
 
     fight(warrior_1, warrior_2)
