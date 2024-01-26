@@ -1,38 +1,48 @@
 import random
 from typing import Self
+from enum import Enum
+
+
+class ArmorClassEnum(int, Enum):
+    FIRST = 1
+    SECOND = 2
+    THIRD = 3
+
+
+ARMOR_MULTIPLIER_BY_ARMOR_CLASS = {
+    ArmorClassEnum.FIRST: 1,
+    ArmorClassEnum.SECOND: 1.3,
+    ArmorClassEnum.THIRD: 1.5,
+}
 
 
 class Armor:
-    def __init__(self, defence: int, class_armor: int):
+    def __init__(self, defence: int, class_armor: ArmorClassEnum):
         self.class_armor = class_armor
         self.armor = defence * self.multiplicity_check()
 
     def multiplicity_check(self) -> float:
-        return {
-            1: 1,
-            2: 1.3,
-            3: 1.5,
-        }.get(self.class_armor, 1)
+        return ARMOR_MULTIPLIER_BY_ARMOR_CLASS[self.class_armor]
 
     def _can_absorb_all_damage(self, damage: int | float) -> bool:
         return damage <= self.armor
 
-    def absorb(self, damage: int) -> int | float:
+    def absorb_and_return_remaining_damage(self, damage: int) -> int | float:
+        """
+        Absorbs damage using the armor.
+        This method checks if the armor can absorb all the damage.
+        :param damage: The amount of damage to be absorbed.
+        :return: Remaining damage after absorption
+        If the damage is completely absorbed then it returns 0
+        """
         if self._can_absorb_all_damage(damage):
             absorbed_damage = damage
             self.armor -= absorbed_damage
-            print(
-                f"The armor absorbed {absorbed_damage} damage successfully. Remaining armor is: {self.armor}"
-            )
+            return 0
         else:
-            absorbed_damage = self.armor
+            remaining_damage = damage - self.armor
             self.armor = 0
-            remaining_damage = damage - absorbed_damage
-            print(
-                f"The armor don't absorb all the damage, and {absorbed_damage} damage was absorbed. "
-                f"Remaining damage transferred to health is: {remaining_damage}"
-            )
-        return absorbed_damage
+            return remaining_damage
 
 
 class Weapon:
@@ -57,9 +67,6 @@ class Weapon:
         actual_damage = random.randint(self.min_damage, self.max_damage)
         if self._is_crit_triggered():
             actual_damage *= (self.crit_strange / 100) + 1
-            print(f"Crit attack {actual_damage} damage")
-        else:
-            print(f"Non-critical damage is: {actual_damage} damage")
         return actual_damage
 
 
@@ -72,15 +79,11 @@ class Warrior:
         self.is_alive: bool = True
 
     def take_damage(self, damage: int):
-        absorbed_damage = self.armor.absorb(damage)
-        remaining_damage = damage - absorbed_damage
+        remaining_damage = self.armor.absorb_and_return_remaining_damage(damage)
         self.health -= remaining_damage
         if self.health <= 0:
             self.health = 0
             self.is_alive = False
-            print(
-                f"The health after damage is: {self.health} and armor is: {self.armor.armor}"
-            )
 
     def attack(self, opponent: Self):
         damage = self.weapon.calculate_damage()
@@ -96,42 +99,32 @@ def fight(warrior1: "Warrior", warrior2: "Warrior"):
     )
     print("-" * 50)
     while warrior1.is_alive and warrior2.is_alive:
-        print(f"Warrior {warrior1.name} attack warrior {warrior2.name}")
         warrior1.attack(warrior2)
-        print(
-            f"{warrior2.name} health: {warrior2.health} HP, armor: {warrior2.armor.armor} CP\n"
-        )
-        print("-" * 50)
-
         if not warrior2.is_alive:
-            print(f"{warrior1.name} WON!!")
-            print("-" * 50)
             break
-
-        print(f"Warrior {warrior2.name} attack warrior {warrior1.name}")
         warrior2.attack(warrior1)
-        print("-" * 50)
-
         if not warrior1.is_alive:
-            print(f"{warrior2.name} WON!!")
-            print("-" * 50)
             break
 
-    print(
-        f"The battle is over.\n"
-        f"Warrior {warrior1.name} health: {warrior1.health} HP, armor: {warrior1.armor.armor} CP\n"
-        f"{warrior2.name} health: {warrior2.health} HP, armor: {warrior2.armor.armor} CP."
-    )
+    print(f"The battle is over")
+    if warrior1.is_alive:
+        print(
+            f"Warrior {warrior1.name} won. Health: {warrior1.health} HP, armor: {warrior1.armor.armor} CP"
+        )
+    elif warrior2.is_alive:
+        print(
+            f"Warrior {warrior2.name} won. Health: {warrior2.health} HP, armor: {warrior2.armor.armor} CP"
+        )
 
 
 if __name__ == "__main__":
-    armor_1 = Armor(defence=15000, class_armor=2)
+    armor_1 = Armor(defence=15000, class_armor=ArmorClassEnum.SECOND)
     weapon_1 = Weapon(
         name="Hammer", min_damage=200, max_damage=5000, crit_chance=80, crit_strange=95
     )
     warrior_1 = Warrior(name="Aleksandr", health=6000, weapon=weapon_1, armor=armor_1)
 
-    armor_2 = Armor(defence=16000, class_armor=3)
+    armor_2 = Armor(defence=16000, class_armor=ArmorClassEnum.THIRD)
     weapon_2 = Weapon(
         name="Knife", min_damage=500, max_damage=5000, crit_chance=90, crit_strange=85
     )
